@@ -1,0 +1,121 @@
+---
+title: Data Types in R
+
+---
+
+``` {r, include=TRUE}
+# Making vectors
+
+# Character Vector Examples
+animals <- c("Horse", "Shark", "Beetle", "Dolphin", "Whale")
+
+print("Type of the animals vector")
+type_1 <- typeof(animals)
+class_1 <- class(animals)
+
+# Numeric Vector Examples
+organWeights <- c(1000, 2000, 5, 600, 192929)
+
+print("Specific type of the organWeights vector")
+type_2 <- typeof(organWeights)
+
+print("Broader grouping of class that the type of under for organWeights vector")
+class_2 <- class(organWeights)
+
+# Integer Vector Example
+print("Integer type example")
+animalWeight <- c( 2000L, 5000L, 1L, 2300L, 400000L)
+
+type_3 <- typeof(animalWeight)
+class_3 <- class(animalWeight)
+
+# Combination of classes, Hierarchy goes from broad (strings) to specific numeric & factorial
+
+# Named Elements
+animalDiet <- c(horse = "Hay", shark = "Fish", beetle = "Dung", dolphin = "Fish", whale = "Krill")
+class_4 <- class(animalDiet)
+type_4 <- typeof(animalDiet)
+
+# Creating Matrices
+
+fish_size <- matrix(c(1.8, 20, 2, 4), ncol = 2, nrow = 2, byrow = FALSE)
+class_5 <- class(fish_size)
+type_5 <- typeof(fish_size)
+
+# Creating Lists
+
+algae <- list("avrainvillea", c(10, 20, 30), c("invasive", 'native', 'endemic'), 50L)
+
+mammals <- list(legs = c(0, 2, 4), diet = c("carnivor", "omnivor", "herbivor"))
+
+mammals
+
+# Data Frames
+```
+## Making Vectors
+### Character Vectors
+
+Animal Vector (`r animals`)  
+
+* **Type of the animals vector**  
+  + Type: `r type_1`  
+  + Class: `r class_1`
+  
+### Numeric Vectors
+
+organWeights Vector (`r organWeights`)
+
+* **Type of organWeights vector**
+  + Type: `r type_2`  
+  + Class: `r class_2`
+  
+### Integer Vector Example
+
+animalWeights Vector (`r animalWeight`)
+
+* **Type of animalWeights vector**
+  + Type: `r type_3`  
+  + Class: `r class_3`
+
+### Named Elements
+Animal Diet Vector (`r animalDiet`)
+
+* **Type of animalDiet vector**
+  + Type: `r type_4`  
+  + Class: `r class_4`
+  
+Accessing single entry within vector of named elements
+
+> *Note that R indexes the first element at 1 not 0*  
+
+  * **Shark diet** - `r animalDiet["shark"]`
+  
+### Matrices
+Fish Size Matrix (`r fish_size`)
+
+* **Type of fish_size matrix**
+  + Type: `r type_5`  
+  + Class: `r class_5`
+  
+Matrices can be accessed by using the syntax `matrix_var[row, column]`
+
+* Leaving row or column blank with retrieve all values contained in the row or column provided.
+* Example: Accessing all of the values in column 1 of fish_size matrix (`fish_size[, 1]`) = **`r fish_size[, 1]`**
+
+
+### Lists
+Lists - A collection of vectors that can be accessed individually
+
+Sample list - `r algae[1]`
+
+Named list accessing with `mammals$legs` - `r mammals$legs`
+
+### Data Frames
+Data Frames - A list containing vectors of the same length
+
+* Ways of accessing data frames
+  + using syntax `[row#, col#]`
+  + name column then element number `sample_data_frame$column_name$row_number`
+
+
+
