@@ -1,0 +1,57 @@
+---
+title: 'STL Lead Levels'
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(here)
+library(tidyverse)
+library(janitor)
+```
+
+# STL Inequity of Lead
+
+```{r, echo=FALSE,}
+# Read in lead data and clean names to normalize
+
+stl_lead <- read_csv(here::here('data', 'stl_lead.csv'))
+stl_lead <- janitor::clean_names(stl_lead)
+
+# Create new data frame with new column prop_white = percent of cencus tract identifying as white
+
+stl_lead_df <- data.frame(stl_lead)
+stl_lead_df <- stl_lead_df |>
+  mutate(white_prop = (white / total_pop) * 100)
+
+```
+
+## STL Children with Elevated Blood Lead Levels
+
+```{r, echo=TRUE, fig.width = 12}
+# Elements to remember for plotting with R & Tidyverse
+# data = #dataVariable, aes(x = x-axis col, y = y-axis col)
+
+children_elevated_lead_plot <- ggplot(data = stl_lead_df, aes(x = pct_elevated, y = white_prop)) +
+  geom_point(size = 3, shape = 23) +
+  labs(title = 'Children Lead Blood Levels', caption = 'Populations of children which are a majority white have elevated blood lead level rates that are 3 - 4 times lower than populations where white individuals make up less than 25% of the population.') +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    plot.caption = element_text(hjust = 0.5)
+  )
+
+children_elevated_lead_plot
+```
+## Histogram of the Percent of Elevated Blood Levels in Children
+
+``` {r, echo=FALSE}
+children_elevated_lead_histogram <- ggplot(data = stl_lead_df, aes(x = pct_elevated)) +
+  geom_histogram(color = '#040000', fill = 'white', ) + 
+  theme(
+    panel.background = element_rect(color = 'black', fill='#89dddd', size = 4, linetype = 'solid')
+  ) +
+  labs( x = 'Percent elevated', y = 'Count')
+                 
+children_elevated_lead_histogram
+```
