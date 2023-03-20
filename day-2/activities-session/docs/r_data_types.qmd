@@ -1,0 +1,128 @@
+---
+title: Data Types - Day 2 Activities
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+```{r, setup=TRUE, include=FALSE }
+library(tidyverse)
+library(janitor)
+library(here)
+```
+
+```{r, echo=TRUE}
+vec_1 = c(2,5,9,10,8,12,1,0)
+
+# Determine vector class
+class(vec_1)
+# Determine type
+typeof(vec_1)
+
+# Store 3rd element in variable
+vec_1_e3 = vec_1[3]
+
+# Store 1st element in variable
+vec_1_e1 = vec_1[1]
+
+# Store element 5-7 in vector
+vec_1_e5to7 = vec_1[5:7]
+
+# Reassign vec_1 as character
+vec_1_char = as.character(vec_1)
+
+vec_1_char
+
+# Create second vector
+vec_2 = c(town = "Santa Barbara", location = "Rincon", swell = "south")
+
+vec_2
+
+# Check Class of second Vector
+class(vec_2)
+
+# Check length of second vector
+length(vec_2)
+
+# Data Frame Practice
+# Data
+regional_species_count = list(region = c("A", "B", "A", "D"), species = c("otter", "great white", "sea lion", "gray whale"), count = c(12, 2, 36, 6))
+regional_species_count
+
+# Create Data frame
+df_1 = data.frame(regional_species_count)
+
+df_1
+
+# Class of Data Frame
+class(df_1)
+class(df_1$species)
+
+# Maximum value in count column
+max_count = max(df_1$count)
+max_count
+
+```
+## Project Description
+The Mack Creek salamander & curthroat trout project is a long-term monitoring effort along Mack Creek in H.J. Andrews Experiemental Forest. Measurements began in 1987 and 1993 for the cutthroat trout and Pacific Giant Salamander, respectively, with the project continuing through to 2019. This study is one of the longest continuous studies for salmonoid populations and provides valuable insight into trends related to anthropogenic disturbances.
+``` {r, include=TRUE}
+mack_verts = read_csv(here::here("data", "AS00601.csv"))
+mack_verts = janitor::clean_names(mack_verts, "snake")
+skimr::data_cols(mack_verts)
+
+```
+
+```{r, include=FALSE}
+# Store single value from weight column
+mc_wt_5 = mack_verts$weight[5]
+mc_wt_5
+
+# Store length values from record 8-20
+mc_length_8to20 = mack_verts$length1[8:20]
+mc_length_8to20
+
+# Store all dates from data set
+mc_dates = mack_verts$sampledate
+mc_dates
+typeof(mc_dates)
+```
+```{r include=TRUE}
+# Make salamander subset using dplyr
+mc_salamanders = dplyr::filter(mack_verts, species == "DITE")
+
+mc_salamanders_df = data.frame(mc_salamanders)
+
+
+# Make scatterplot of salamander Length x Weight
+plot_salamander <- ggplot(data = mc_salamanders_df, aes(x = weight , y = length1)) +
+  geom_point(size = 2, shape = 15, color="#DD2928") +
+  labs(title = "Pacific Giant Salamander Length Versus Weight", subtitle = "Analysis is computed for all data points collected between 1993 and 2019.") +
+  xlab("Weight (g)") +
+  ylab("Snout-vent Length (mm)") + 
+  theme (
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    panel.background = element_rect(color = "black", fill = "#6D91044a", size = 2, linetype = "solid")
+  )
+plot_salamander
+```
+``` {r, include=TRUE}
+mc_trout = dplyr::filter(mack_verts, species == "ONCL")
+
+mc_trout_df = data.frame(mc_trout)
+
+plot_trout <- ggplot(data = mc_trout_df, aes(x = weight, y = length1, color = reach)) +
+  geom_point(size = 1.5, shape = 18) + 
+  labs(title = "Cutthroat Trout Length Versus Weight", subtitle = "Analysis computed for cutthroat trout specimens captured between 1987 and 2019.") + 
+  xlab("Weight (g)") +
+  ylab("Length (mm)") +
+  scale_color_manual(values = c("L" = "#DD2928", "M" = "#121128", "U" = "#345128")) +
+  facet_wrap(vars(reach)) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    panel.background = element_rect(color = "black", fill = "#6D91044a", size = 2, linetype = "solid"),
+    legend.position = "none"
+  )
+
+plot_trout
+```
