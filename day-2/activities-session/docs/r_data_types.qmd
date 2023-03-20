@@ -8,6 +8,8 @@ editor_options:
 library(tidyverse)
 library(janitor)
 library(here)
+
+# EDI Data Location: https://portal.edirepository.org/nis/metadataviewer?packageid=knb-lter-and.4027.14
 ```
 
 ```{r, echo=TRUE}
