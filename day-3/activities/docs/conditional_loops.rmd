@@ -4,16 +4,14 @@ output: html_output
 ---
 
 ``` {r, setup=TRUE, include=FALSE}
-library(tidyverse)
-library(janitor)
-library(here)
+
 ```
 
 ```{r, echo=TRUE}
 # Part 1: Particulate matter 2.5
 pm2_5 <- 48
 # categorical return based on value < 100 = low to moderate
-# 100 <= pm2_5 < 150 Unhealthy for sensistive groups
+# 100 <= pm2_5 < 150 Unhealthy for sensitive groups
 # > 150 Health risk present
 
 if (pm2_5 < 100) {
