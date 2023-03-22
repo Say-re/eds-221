@@ -1,0 +1,80 @@
+---
+title: Conditional Loops Activities
+output: html_output
+---
+
+``` {r, setup=TRUE, include=FALSE}
+library(tidyverse)
+library(janitor)
+library(here)
+```
+
+```{r, echo=TRUE}
+# Part 1: Particulate matter 2.5
+pm2_5 <- 48
+# categorical return based on value < 100 = low to moderate
+# 100 <= pm2_5 < 150 Unhealthy for sensistive groups
+# > 150 Health risk present
+
+if (pm2_5 < 100) {
+  print("Low to moderate risk.")
+} else if (pm2_5 >= 100 & pm2_5 < 150) {
+  print("Unhealthy for sensistive groups.")
+} else {
+  print("Health risk present")
+}
+```
+
+```{r, echo=TRUE}
+# Task 2
+species <- "blue whale"
+if (str_detect(species, "whale")) {
+  print("You found a whale!")
+}
+```
+
+```{r, include=TRUE}
+# Task 3
+max_airtemp_c <- c(24.1)
+
+if (max_airtemp_c > 27) {
+  print("Temperature too high!")
+} else {
+  print("Temperature okay.")
+}
+```
+
+```{r, echo=TRUE}
+# Task 4
+base_burrito <- c(6.50)
+main_ingredient <- "steak"
+
+total_price <- vector(mode = "numeric", length = 1)
+
+if (main_ingredient == "veggie") {
+  total_price <- base_burrito
+} else if (main_ingredient == "chicken") {
+  total_price <- base_burrito + 3
+} else if (main_ingredient == "steak") {
+  total_price <- base_burrito + 3.25
+}
+
+print(paste0("The total cost of your burrito will be $", format(round(total_price, 2), nsmall = 2)))
+```
+
+```{r, echo=TRUE}
+# Different counts of fish in a fish tank
+fish_count <- c(8, 10, 12, 23)
+fish_types <- c("Goldfish", "Tetras", "Guppies", "Mollies")
+total_fish <- sum(fish_count)
+for (i in seq_along(fish_count)) {
+  proportion_population <- fish_count[i] / total_fish * 100
+  print(paste0(fish_types[i], " make up ", format(round(proportion_population, 2), nsmall = 2), "% of the population"))
+}
+```
+
+``` {r, echo=TRUE}
+for (i in seq_along(month.name)) {
+  print(paste0(month.name[i], " is month ", i, "."))
+}
+```

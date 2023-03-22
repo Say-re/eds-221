@@ -1,0 +1,125 @@
+---
+title: Boolean and For/loop operations Introduction
+output: html_output
+---
+
+``` {r, include=TRUE}
+library(stringr)
+library(palmerpenguins)
+library(tidyverse)
+
+# Part 1: Store some variable values
+DEJ_weight <- 44.55
+sparrow_weight <- 200
+
+# Logical expression
+DEJ_weight > 100
+
+DEJ_weight < sparrow_weight
+
+# Part 2: Conditionals
+produce_count = 150
+
+if (produce_count < 200) {
+  print("Not enough produce ordered!")
+}
+
+conservation_boats <- c("Sea Shepard", "Pollinator", "Gustron")
+str_detect(conservation_boats, "sea")
+
+if (str_detect(conservation_boats[1], "Sea")) {
+  print("Go get em, Sea Shepard!")
+}
+
+# Testing else if statements
+song_sparrow_age = 20
+if (song_sparrow_age < 1) {
+  print("It's a baby sparrow")
+} else if (song_sparrow_age < 5 & song_sparrow_age >= 1) {
+  print("It's a juvenile sparrow!")
+} else {
+  print ("It's an adult sparrow")
+}
+
+switch("20",
+        "5" = print("Small"),
+        "10" = print("medium"),
+        "20" = print("Large!"))
+
+plant_species <- c("Norfolk pine", "Western hemlock", "Douglas fir", "Sitka spruce")
+
+for (sp in plant_species) {
+  print(paste("You found the plant species,", sp))
+}
+
+# Another loop example using sequences
+mass <- seq(from = 0, to = 5, by = 0.5)
+
+for (m in mass) {
+  new_value = m + 2
+  print(new_value)
+}
+
+# Or use sequence along
+
+for (m in seq_along(mass)) {
+  new_value = mass[m] + 5
+  print(new_value)
+}
+
+# Part 5: Storing outputs from a for loop
+# Vectors with species and age equivalent
+species <- c("dog", "elephant", "goat", "lion", "tiger")
+
+age_human <- c(3, 8, 4, 6, 12)
+animal_ages <- vector(mode = "numeric", length = length(species))
+
+for (i in seq_along(species)) {
+  if (species[i] == "dog") {
+    animal_age <- age_human[i] * 7
+  } else if (species[i] == "elephant") {
+    animal_age <- age_human[i] * .88
+  } else {
+    animal_age <- age_human[i] * 1.25
+  }
+  animal_ages[i] <- animal_age
+}
+animal_ages
+
+sitka_spruce <- c(100, 500, 1200)
+douglas_fir <- c(202, 458, 2330)
+
+total_trees_locations <- vector(mode = "numeric", length = length(sitka_spruce))
+for (i in seq_along(sitka_spruce)) {
+  total_trees <- sitka_spruce[i] + douglas_fir[i]
+  total_trees_locations[i] <- total_trees
+}
+total_trees_locations
+
+for (i in seq_along(penguins)) {
+  if (is.numeric(penguins[[i]])) {
+    penguin_med <-median(penguins[[i]], na.rm = TRUE)
+    print(penguin_med)
+  } else {
+    print("Non-numeric column")
+  }
+}
+
+# Part 6 Functional programming
+
+# Using apply need the following - (Data, iterating rows or columns, function to apply to each element)
+apply(X = mtcars, MARGIN = 2, FUN = mean)
+
+# Other iterations - lapply, sapply
+
+# Dyplr functions
+penguins |>
+  group_by(species) |>
+  summarize(across(where(is.numeric), mean, na.rm = TRUE))
+
+map(.x = mtcars, .f = mean)
+
+# Return the results in a data frame
+map_df(.x = mtcars, .f = mean)
+map_df
+```
