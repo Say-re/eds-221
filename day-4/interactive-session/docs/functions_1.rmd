@@ -1,0 +1,220 @@
+---
+title: Introduction to functions R
+output: html_output
+---
+
+```{r, setup, include=FALSE}
+# Set up if needed
+library(tidyverse)
+```
+
+```{r, echo=TRUE}
+# Example from the lecture
+birddog_sum <- function(bird, dog) {
+  pets = bird + dog
+  return(pets)
+}
+birddog_sum(2, 20)
+```
+```{r, echo=TRUE}
+# Double value function
+double_value <- function(value) {
+  return(value * 2)
+}
+double_value(200)
+
+# Function calls can work on vectors as well
+double_value(c(200, 400, 600))
+```
+
+```{r, echo=TRUE}
+# Create a function to tell a users age
+display_age <- function(age) {
+  print(paste("I am", age, "years old!"))
+}
+display_age(20)
+```
+```{r, echo=TRUE}
+# Write a function that will take the dogs name and display the name and favorite food of that dog
+# Create data frame to hold data
+dogs_fav_foods <- data.frame(
+  list("dog_name" = c("Khora", "Teddy", "Waffle", "Banjo"), "food" = c("everything", "salmon", "pancakes", "chicken"))
+  )
+dogs_fav_foods
+# Define function & call it with example
+get_dog_details <- function(name) {
+  dog_details <- dplyr::filter(dogs_fav_foods, dog_name == name)
+  print(paste("My name is", dog_details$dog_name, "and my favorite food is", dog_details$food))
+}
+get_dog_details("Khora")
+```
+```{r, echo=TRUE}
+# Create a loop function to run through different elements of a data structure
+df_means <- function(df) {
+  for (i in 1:ncol(df)) {
+    col_mean <- mean(df[[i]], na.rm = TRUE)
+    # Single bracket returns a column name within a dataframe
+    col_name <- colnames(df[i])
+    print(paste("The mean value of", col_name, "is", col_mean))
+  }
+}
+# Test function
+df_means(mtcars)
+
+# Create dataframe
+some_fish <- tribble(
+  ~brown, ~rainbow, ~cutthroat,
+  16.2, 12.1, 21.9,
+  24.7, 14.6, 18.3,
+  12.1, 15.4, 30.2,
+  10.4, 11.8, 26.3
+)
+
+df_means(some_fish)
+```
+```{r, echo=TRUE}
+# Adding error handling for functions
+# The stop function prevents the function from continuing and can provide a message to the user to provide insight into the problem.
+animal_age <- function(animal, age) {
+  if (!animal %in% c("dog", "goat")) {
+    stop("Oh no! Animal must be a dog or a goat.")
+  }
+  if (is.numeric(age) == FALSE) {
+    stop("Invalid age value. Age must be between a value of 0 and 100.")
+  }
+  if (age <= 0) {
+    stop("Invalid age value. Please enter a value greater than zero.")
+  }
+  if (animal == "dog") {
+    return(age * 7)
+  } else if (animal == "goat") {
+    return(age * 4.7)
+  }
+}
+
+animal_age("dog", 10)
+```
+
+```{r, echo=TRUE}
+calc_turbine_pwr_collection <- function(air_density, rotor_radius, wind_velocity) {
+  if (wind_velocity > 130) {
+    warning("You entered a wind speed that is extremely high.")
+  }
+  if (air_density > 1.225) {
+    warning("You entered an air density that is higher than the density at sea level. Please check the function to verify your values.")
+  }
+  if (rotor_radius < 0) {
+    stop("Error. You entered a rotor radius less than 0. Please update the parameters of the function.")
+    }
+    return(0.3 * air_density * pi * rotor_radius^2 * wind_velocity^3 )
+}
+calc_turbine_pwr_collection(1, 10, 100)
+calc_turbine_pwr_collection(5, 10, 100)
+```
+```{r, echo=TRUE}
+# An example with a data frame switching based on the location to return transport rate
+
+gw_rate <- function(site, useAlt = FALSE) {
+  
+  # Create data frame with stored values
+  gw_depths <- data.frame(sitename = c("mountain", "prarie", "desert", "beach"),
+                          depth = c(32, 41, 63, 2),
+                          slope = c(11.2, 0.4, 0.8, 2.6)
+                          )
+  
+  # Alternate storage option using switch statements
+  gw_depths_alt <- switch(site, 
+                          "mountain" = c(32, 11.2),
+                          "prarie" = c(41, 0.4),
+                          "desert" = c(63, 0.8),
+                          "beach" = c(2, 2.6)
+                          )
+  # Calculate rate using alternate data storage
+  if (useAlt == TRUE) {
+    transport_rate <- 1.4 * gw_depths_alt[2] + 3.6 * gw_depths_alt[1]
+  } else {
+    # Create subset based on the site provided as a parameter
+    site_selected <- filter(gw_depths, sitename == site)
+  
+    # Calculate the transport rate for the site
+    transport_rate <- 1.4 * site_selected$slope + 3.6 * site_selected$depth 
+  }
+  
+  return(transport_rate)
+}
+
+gw_rate("mountain")
+gw_rate("mountain", TRUE)
+```
+```{r, echo=TRUE}
+# Logistic growth example
+logistic_growth <- function(N0, K, r, time) {
+  Nt <- K / (1 + ((K - N0) / N0) * exp(-r * time))
+  return(Nt)
+}
+logistic_growth(100, 6000, 0.27, 40)
+
+# Create time vector for graphing function through time
+time_vec <- seq(from = 0, to = 35, by = 0.1)
+
+# Apply logistic function over time vector
+pop_35 <- logistic_growth(100, 6000, 0.27, time_vec)
+
+# Bind to a data frame
+pop_time_35 <- data.frame(time_vec, pop_35)
+
+# View saved data
+# View(pop_time_35)
+
+# Alternate with an inner for loop
+pop_35_vec <- vector(mode = "numeric", length = length(time_vec))
+
+for (i in seq_along(time_vec)) {
+  population <- logistic_growth(100, 6000, 0.27, time_vec[i])
+  pop_35_vec[i] <- population
+}
+pop_35_vec
+
+# Graph the output
+ggplot(data = pop_time_35, aes(x = time_vec, y = pop_35)) +
+  geom_line(size = 0.5)
+
+# Now if we wanted to apply the function over a range of growth rates
+
+# Create a sequence for growth rate values
+rate_seq <- seq(from = 0.20, to = 0.40, by = 0.01)
+
+# Create dual for loops that goes through each and applies the logistic growth function for each growth rate
+
+# Create a MATRIX to store outputs
+output_matrix <- matrix(nrow = length(time_vec), ncol = length(rate_seq))
+
+# Nested for loop to compute the transformation
+for (i in seq_along(rate_seq)) {
+  for (j in seq_along(time_vec)) {
+    pop <- logistic_growth(100, 6000, rate_seq[i], time_vec[j])
+    output_matrix[j, i] <- pop # Store value in correct row and column
+  }
+}
+# View result
+# View(output_matrix)
+
+# Complete some data wrangling
+output_df <- data.frame(output_matrix, time = time_vec)
+
+colnames(output_df) <- c(paste0("gr_", rate_seq), "time")
+
+colnames(output_df)
+
+# pivot_longer to make it tidy
+output_df_long <- output_df |>
+  pivot_longer(cols = -time, names_to = "growth_rate", values_to = "population")
+
+# Plot the updated data
+ggplot(data = output_df_long, aes(x = time, y = population)) +
+  geom_line(aes(color = growth_rate)) +
+  xlab("Time") +
+  ylab("Population size (n)") +
+  theme_minimal()
+
+```
