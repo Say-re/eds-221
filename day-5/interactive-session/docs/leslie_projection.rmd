@@ -1,0 +1,43 @@
+---
+title: Leslie Matrix Projection - For Loops
+output: html_output
+---
+
+```{r, setup, include=FALSE}
+library(tidyverse)
+```
+
+```{r, echo=TRUE}
+# Make the Leslie Matrix
+fish_leslie <- matrix(c(0, 0, 0, 200, 0.05, 0, 0, 0, 0, 0.10, 0, 0, 0, 0, 0.16, 0.9), nrow = 4, ncol = 4, byrow = TRUE)
+
+# Review
+fish_leslie
+
+# Initial population structure (Row, Fry, Juvenile, Adult)
+fish_year0 <- (c(5000, 8000, 600, 400))
+
+# Create matrix for projecting population over 8 years
+time_yr <- seq(from = 0, to = 8, by = 1)
+proj_year <- matrix(ncol = length(fish_year0), nrow = length(time_yr))
+proj_year[1, ] <- fish_year0
+
+# Use for loop to calculate population structure at each year
+for (i in 2:length(time_yr)) {
+  proj_year[i, ] <- fish_leslie %*% proj_year[i - 1, ]
+}
+
+# Review output
+proj_year
+
+# Data wrangling & visualization
+colnames(proj_year) <- c("eggs", "fry", "juvenile", "adult")
+proj_def <- data.frame(time_yr, proj_year) |>
+  pivot_longer(cols = -time_yr, names_to = "lifestage", values_to = "stage_population")
+
+ggplot(data = proj_def, aes(x = time_yr, y = stage_population)) +
+  geom_line(aes(color = lifestage)) +
+  scale_y_log10() +
+  xlab("Time (years)") +
+  ylab("Stage Population")
+```
