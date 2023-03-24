@@ -1,0 +1,103 @@
+---
+title: Loops and functions in R
+output: html_output
+---
+
+```{r, setup, include=FALSE}
+library(tidyverse)
+```
+
+```{r, echo=TRUE}
+# For loops revisited
+weekdays <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
+              "Saturday", "Sunday")
+transects <- c("Transect A", "Transect B", "Transect C")
+transect_collections_matrix <- matrix(nrow = length(weekdays), ncol = length(transects))
+
+for (i in seq_along(transects)) {
+  for (j in seq_along(weekdays)) {
+    transect_value <- paste(weekdays[j], "-", transects[i])
+    transect_collections_matrix[j, i] <- transect_value
+  }
+}
+transect_collections_matrix
+```
+```{r, echo=TRUE}
+# Functions introduced
+
+# Task 2:
+calc_force <- function(mass, acc) {
+  force <- mass * acc
+  return(paste("The resulting force is", force, "Newtons."))
+}
+calc_force(200, 1.8)
+
+# Task 3
+
+# Set up data frame with 3 species names and a/b estimates for function parameters
+fish_params <- data.frame(
+  "sci_name" = c("Chanos chanos", "Sphyraena barracuda", "Caranx ignobilis"),
+  "common_name" = c("Milkfish", "Great barracuda", "Giant trevally"),
+  "a_est" = c(0.0905, 0.0181, 0.0353),
+  "b_est" = c(2.52, 3.27, 3.05)
+  )
+
+# Create function that accepts common fish name and total length to estimate weight of fish
+get_fish_weight <- function(fish_name, tot_length) {
+  if (exists("fish_name") == FALSE || tot_length < 0) {
+    stop("Invalid parameters entered. Please ensure length is greater than 0 and that you have entered a fish name.")
+  }
+  fish_record <- filter(fish_params, common_name == fish_name)
+  # Log retrieved record
+  # print(fish_record)
+  return(fish_record$a_est * fish_record$b_est ^ tot_length)
+}
+
+get_fish_weight("Milkfish", 100)
+get_fish_weight("Great barracuda", 100)
+get_fish_weight("Giant trevally", 100)
+
+# Track how weight changes from 85 to 100 length for each fish
+fish_length_vec <- seq(from = 85, to = 100, by = 1)
+graph_weight_length <- function(fish_name) {
+  # Create vector to store weights calculated from lengths
+  fish_weight_vec <- vector(mode = "numeric", length = length(fish_length_vec))
+  
+  # For every length calculate the weight and store in the vector
+  for (i in seq_along(fish_length_vec)) {
+    fish_weight_vec[i] <-get_fish_weight(fish_name, fish_length_vec[i])
+  }
+  
+  # Store length and weight vectors in a data frame and plot the resulting data
+  fish_df <- data.frame("weight" = fish_weight_vec, "length" = fish_length_vec)
+  ggplot(data = fish_df, aes(x = length, y = weight)) +
+    geom_line() +
+    theme_minimal()
+}
+
+graph_weight_length("Milkfish")
+graph_weight_length("Great barracuda")
+graph_weight_length("Giant trevally")
+```
+```{r, echo=TRUE}
+# Task 4 & 5
+
+# Create function that calculates ocean wave power from inputs of 
+#.    1. Wave heights
+#.    2. Wave period
+get_wave_power <- function(height, period, depth = 100) {
+  if (depth <= 12) {
+    message("Shallow water equation used for calculations.")
+    return(0.81 * height^2 * period)
+  } else {
+    message("Deep water equation used for calculations.")
+    return(0.5 * height^2 * period) 
+  }
+}
+
+# Approximate wave power over range of heights 0-3m and period of 8s
+wave_period <- 8
+wave_height <- seq(from = 0, to = 3, by = 0.2)
+get_wave_power(wave_height, wave_period)
+get_wave_power(wave_height, wave_period, 10)
+```
