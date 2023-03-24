@@ -98,6 +98,9 @@ get_wave_power <- function(height, period, depth = 100) {
 # Approximate wave power over range of heights 0-3m and period of 8s
 wave_period <- 8
 wave_height <- seq(from = 0, to = 3, by = 0.2)
+# Calculate using deep water equation
 get_wave_power(wave_height, wave_period)
+
+# Calculate using shallow water equation
 get_wave_power(wave_height, wave_period, 10)
 ```
