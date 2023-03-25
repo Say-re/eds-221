@@ -1,0 +1,65 @@
+---
+title: US Tilapia Imports Data Viz
+output: html_output
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, setup, include=FALSE}
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+```{r, echo=TRUE}
+tilapia_imports <- read_csv(here::here("activities", "data", "us_tilapia_imports.csv"))
+
+# Explore data
+summary(tilapia_imports) # Summary of data
+names(tilapia_imports) # Column Names
+dim(tilapia_imports) #Dimensions of data
+sapply(tilapia_imports, typeof) # Types of each column
+
+tilapia_imports_update <- tilapia_imports |>
+  pivot_longer(cols = -country, names_to = "Year", values_to = "year") |>
+  mutate(Year = as.numeric(Year))
+  
+# Group data by year and store the average mean for each year
+yearly_tilapia_total <- tilapia_imports_update |>
+  group_by(Year) |>
+  summarize(mean = mean(year, na.rm = TRUE))
+
+# View class of columns
+sapply(tilapia_imports_update, class)
+
+ggplot(data = yearly_tilapia_total, aes(x = Year, y = mean)) +
+  geom_point() +
+  geom_line() +
+  xlab("Year") +
+  ylab("Total Import (klbs)") +
+  labs(title = "Total import of tilapia into the United States") +
+  theme(
+    plot.title = element_text(hjust = "0.5")
+  ) +
+  scale_x_continuous(n.breaks = 10)
+
+# Create subset of data from Ecuador, Honduras, Costa Rica, and Mexico
+subset_countries <- c("Ecuador", "Honduras", "Costa rice", "Mexico")
+latin_american_imports_tilapia <- filter(tilapia_imports_update, country %in% subset_countries)
+
+latin_america_yearly_tot <- latin_american_imports_tilapia |>
+  group_by(Year) |>
+  summarize(mean = mean(year, na.rm = TRUE) )
+
+# Plot resulting data in a line plot
+ggplot(data = latin_america_yearly_tot, aes(x = Year, y = mean)) +
+  geom_point() +
+  geom_line() +
+  xlab("Year") +
+  ylab("Total import (klbs)") +
+  labs(title = "Total import of tilapia from Costa rica, Ecuador, Honduras, Mexico into the United States") +
+  theme(
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  theme_light()
+```

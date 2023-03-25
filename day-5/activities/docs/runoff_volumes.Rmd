@@ -1,0 +1,29 @@
+---
+title: Stormwater Runoff Expectations
+output: html_output
+---
+
+```{r, setup, include=FALSE}
+library(tidyverse)
+library(here)
+source(here::here("activities", "src", "storm_runoff.R"))
+```
+
+```{r, echo=TRUE}
+watershed_area <- 182
+imp_frac <- seq(from = 0.6, to = 0.8, by = 0.01)
+
+est_runoff <- get_predicted_runoff(imp_frac, wtrshed_area = watershed_area)
+
+est_runoff_df <- data.frame("impervious_fractions" = imp_frac, "est_runoff" = est_runoff)
+
+ggplot(data = est_runoff_df, aes(x = impervious_fractions, y = est_runoff)) +
+  geom_point() +
+  geom_line() +
+  xlab("Impervious Fraction (I"[A]~")") +
+  ylab("Estimated Runoff") +
+  labs(title = "Estimated Stormwater Runoff") +
+  theme(
+    plot.title = element_text(hjust = "0.5")
+  )
+```
