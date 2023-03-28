@@ -1,0 +1,50 @@
+---
+title: Wrangling Tidy Data
+output: html_output
+---
+
+```{r, setup}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+```{r}
+# *** PART 1: DATA WRANGLING *** #
+
+wb_indicators <- read_csv(here::here("interactive-session", "data", "wb_indicators.csv"), na = c("..", ""))
+wb_metadata <- read_csv("../data/wb_indicators_metadata.csv")
+
+wb_metadata
+head(wb_indicators)
+dim(wb_indicators)
+colnames(wb_indicators)
+
+# Transform data to tidy format
+wb_indicators_long <- wb_indicators |>
+  pivot_longer(cols = '2001 [YR2001]':'2020 [YR2020]', # Set columns to target for pivot function
+               names_to = "year", # Set column that the previous column names are being transformed to
+               values_to = "indicator_value") |> # Assign the values of those columns to a new single column
+  clean_names(case = "snake") # Clean names for consistent format
+# view(wb_indicators_long)
+
+# Clean up year column to isolate year from year code
+wb_data_clean <- wb_indicators_long |>
+  tidyr::separate(col = year, into = c("year", "year_code"), sep = " ") |>
+  dplyr::select(-year_code, -country_code, -series_code)
+
+# view(wb_data_clean)
+
+# Convert indicators to variables
+wb_data_tidy <- wb_data_clean |>
+  tidyr::drop_na(series_name) |>
+  tidyr::pivot_wider(names_from = series_name, values_from = indicator_value)
+head(wb_data_tidy)
+
+# Rename column names from pivoting wider
+names(wb_data_tidy) <- c("country", "year", "access_clean_fuels_pp", "access_electricity_pp", "co2_emissions_kt", "fossil_fuel_cons_pt", "water_stress")
+
+head(wb_data_tidy)
+```
