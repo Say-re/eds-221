@@ -48,3 +48,87 @@ names(wb_data_tidy) <- c("country", "year", "access_clean_fuels_pp", "access_ele
 
 head(wb_data_tidy)
 ```
+```{r}
+# *** PART 2: MORE WRANGLING *** #
+
+# Only show entries relating to the United States
+us_wb_indicators <- wb_data_tidy |>
+  filter(country == "United States")
+
+head(us_wb_indicators)
+
+# Show Entries from the United States, Mexico, or Brazil
+us_mx_bz_wb_indicators <- wb_data_tidy |>
+  filter(country %in% c('United States', 'Mexico', 'Brazil'))
+head(us_mx_bz_wb_indicators)
+
+# Show entries from Guatemala or the year 2019
+guatemala_or_2019_indicators <- wb_data_tidy |>
+  filter(country == 'Guatemala' | year == 2019)
+head(guatemala_or_2019_indicators)
+
+# Using Select to exclude/include columns
+
+# Retrieve Mexico's CO2 emissions for each year
+mexico_co2 <- wb_data_tidy |>
+  filter(country == 'Mexico') |>
+  select(country, co2_emissions_kt, year)
+head(mexico_co2)
+
+# Exclude water_stress and electricity access
+wb_subset <- wb_data_tidy |>
+  select(-c(water_stress, access_electricity_pp))
+head(wb_subset)
+
+# Renaming columns
+wb_new_columns <- wb_data_tidy |>
+  rename(co2 = co2_emissions_kt, wtr_stress = water_stress)
+colnames(wb_new_columns)
+
+# Mutate by adding a new column or mutating data (This overwrites the actual column)
+wb_data_tidy <- wb_data_tidy |>
+  mutate(year = as.numeric(year))
+class(wb_data_tidy$year)
+
+# Add new column that represents CO2 in tons not kilo tons
+wb_co2_tons <- wb_data_tidy |>
+  mutate(co2_tons = co2_emissions_kt * 1000)
+head(wb_co2_tons)
+
+# Find the total reported CO2 emissions from 2001-2020 from each country
+co2_total <- wb_data_tidy |>
+  group_by(country) |>
+  summarize(total_co2_kt = sum(co2_emissions_kt, na.rm = TRUE))
+head(co2_total)
+
+# Find the total emissions for each year from all countries
+co2_total_by_year <- wb_data_tidy |>
+  filter(year == 2001:2018) |>
+  group_by(year) |>
+  summarize(total_co2_kt = sum(co2_emissions_kt, na.rm = TRUE))
+head(co2_total_by_year)
+tail(co2_total_by_year)
+
+ggplot(co2_total_by_year, aes(x = year, y = total_co2_kt)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Total Global Emissions of Carbon Dioxide", subtitle = "(2001-2018)") + 
+  theme(
+    plot.title = element_text(hjust = '0.5'),
+    plot.subtitle = element_text(hjust = "0.5")
+  )
+
+# Completing all the data wrangling in a single statement using pipe operators
+wb_tidy_data_final <- wb_indicators |>
+  tidyr::pivot_longer(cols = '2001 [YR2001]':'2020 [YR2020]',
+                      names_to = 'year',
+                      values_to = 'indicator_value') |>
+  janitor::clean_names(case = 'snake') |>
+  tidyr::separate(col = year, into = c('year', 'year_code'), sep = ' ') |>
+  dplyr::select(-year_code, -country_code, -series_code) |>
+  tidyr::drop_na(series_name) |>
+  tidyr::pivot_wider(names_from = series_name, values_from = indicator_value) |>
+  dplyr::mutate(year = as.numeric(year))
+
+# view(wb_tidy_data_final)
+```
