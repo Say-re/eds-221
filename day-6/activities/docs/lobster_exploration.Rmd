@@ -160,6 +160,20 @@ subset_k <- spiny_lob_abd_tidy |>
   )
 
 # Verify mutated table
-view(subset_j)
-view(subset_k)
+# view(subset_j)
+# view(subset_k)
+
+# Extra data manipulation
+# Group data by year and site, summarize the average carapace length for each group and SD
+lob_subset_yr_site <- spiny_lob_abd_tidy |>
+  group_by(year, site) |>
+  summarize(mean_length_mm = mean(size_mm, na.rm = TRUE), mean_length_sd = sd(size_mm, na.rm = TRUE))
+
+# Review subset of Data
+# Plot average size for each site
+ggplot(data = lob_subset_yr_site, aes(x = year, y = mean_length_mm)) +
+  geom_point(size = 2, aes(color = factor(site))) +
+  xlab("Year") +
+  ylab("Mean length (mm)") +
+  scale_x_continuous(n.breaks = 4)
 ```
