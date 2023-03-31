@@ -1,9 +1,9 @@
 ---
 title: Wrangling Tidy Data
-output: html_output
+output: html_document
 ---
 
-```{r, setup}
+```{r, setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 library(tidyverse)

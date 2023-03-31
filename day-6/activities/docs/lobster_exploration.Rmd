@@ -1,0 +1,165 @@
+---
+title: Lobster Data Exploration & Wrangling
+output: html_document
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+library(tidyverse)
+library(janitor)
+library(here)
+```
+
+
+```{r}
+# *** TASK 2: SBC LOBSTERS *** #
+
+# Read in Spiny Lobster Data & convert -99999 values to NA
+spiny_lob_abd <- read_csv("../data/lobster_abundance.csv", na = c(-99999, ""))
+
+# Confirm format of data that was read in
+# view(spiny_lob_abd)
+
+# Convert names to snake case
+spiny_lob_abd_tidy <- spiny_lob_abd |>
+  janitor::clean_names(case = "snake") |>
+  tidyr::uncount(count) # Based on the lobster count for that row will duplicate the entry to match the count
+  # For example a transect that had a count of 2 will become 2 rows of matching data without the count column
+
+# Confirm data is tidy
+# view(spiny_lob_abd_tidy)
+
+# Create summary table of counts by year
+spiny_lob_year_avg <- spiny_lob_abd_tidy |>
+  group_by(year, site) |>
+  summarize(
+    avg_carapace_length = mean(size_mm, na.rm = TRUE), 
+    total_count = n())
+
+# Review summary table
+# view(spiny_lob_year_avg)
+
+# Create summary table of counts by site
+spiny_lob_site_avg <- spiny_lob_abd_tidy |>
+  group_by(site) |>
+  summarize(
+    avg_carapace_length = mean(size_mm, na.rm = TRUE), 
+    total_count = n())
+
+# Review summary table
+# view(spiny_lob_site_avg)
+
+# Create plot from the summary data total lobsters by year
+ggplot(data = spiny_lob_year_avg, aes(x = year, y = total_count)) +
+  geom_point() +
+  scale_x_continuous(n.breaks = 6) + 
+  facet_wrap(vars(site)) + 
+  xlab('Year') +
+  ylab('Total count (n)') +
+  theme(
+    panel.margin = unit(1, "lines")
+  )
+# Displays on single graph with each site represented by a different color
+ggplot(data = spiny_lob_year_avg, aes(x = year, y = total_count)) +
+  geom_point(aes(color = factor(site))) +
+  scale_x_continuous(n.breaks = 6) + 
+  xlab('Year') +
+  ylab('Total count (n)') +
+  theme(
+    panel.margin = unit(1, "lines")
+  )
+
+# Finding proportion of legal lobsters at each site in 2020
+lob_data_2020 <- spiny_lob_abd_tidy |>
+  filter(year == 2020)
+
+# View data subset
+# view(lob_data_2020)
+
+# Determine lobster count at each site
+lob_data_2020 <- lob_data_2020 |>
+  mutate(
+    legal = case_when(
+      size_mm < 79.76 ~ "yes",
+      size_mm >= 79.76 ~ "no"
+    )
+  ) |>
+  group_by(site, legal) |>
+  summarize(count = n())
+
+# view(lob_data_2020)
+# Create a stacked column graph
+ggplot(data = lob_data_2020, aes(x = site, y = count)) +
+  geom_col(position = "fill", aes(fill = legal))
+
+# *** Task 3: Random Lobster Wrangling *** #
+
+# Task 1: Filtering
+subset_site_a <- spiny_lob_abd_tidy |>
+  filter((site == "IVEE" | site == "CARP" | site == "NAPL")) # Filter data to only include from 3 sites & collection month equals August
+
+subset_b <- spiny_lob_abd_tidy |>
+  filter(month == 8) # Only show entries collected during the month of August
+
+subset_c <- spiny_lob_abd_tidy |>
+  filter(site == "AQUE" | size_mm > 70) # Show lobsters from site AQUE or individuals greater than 70mm in length
+
+subset_d <- spiny_lob_abd_tidy |>
+  filter(site %in% c("AQUE", "CARP", "IVEE", "MOHK")) # Do not show entries from the Naples Site
+
+# Verify outputs of all subsets created
+# view(subset_site_a)
+# view(subset_b)
+# view(subset_c)
+# view(subset_d)
+
+# Task 2: Group by and summarize practice
+subset_e <- spiny_lob_abd_tidy |> 
+  group_by(site) |> # Group entries by site
+  summarize(mean_length = mean(size_mm, na.rm = TRUE), mean_length_sd = sd(size_mm, na.rm = TRUE)) # Determine avg carapace length and the associated standard deviation
+
+subset_f <- spiny_lob_abd_tidy |>
+  group_by(site, month) |> # Group entries by site and month
+  summarize(max_length = max(size_mm, na.rm = TRUE)) # Determine maximum carapace length in each group
+
+# Verify summary tables
+# view(subset_e)
+# view(subset_f)
+
+# Task 3: Mutate Practice
+subset_g <- spiny_lob_abd_tidy |>
+  mutate(size_cm = size_mm / 10) # Add new column which convert carapace size to centimeters
+
+subset_h <- spiny_lob_abd_tidy |>
+  mutate(site = tolower(site)) # Convert all site column entries to lowercase
+
+subset_i <- spiny_lob_abd_tidy |>
+  mutate(area = as.character(area)) # Convert area column entries from numeric to character type
+
+# Verify mutated tables
+# view(subset_g)
+# view(subset_h)
+# typeof(subset_i$area)
+
+# Task 4: case_when() Practice
+subset_j <- spiny_lob_abd_tidy |>
+  mutate( # Create a size bin column that holds a small value when carapace length is <= 70 and large when carapace length > 70
+    size_bin = case_when(
+      size_mm <= 70 ~ "small",
+      size_mm > 70 ~ "large"
+    )
+  )
+
+subset_k <- spiny_lob_abd_tidy |>
+  mutate(
+    designation = case_when(
+      site %in% c("IVEE", "NAPL") ~ "MPA",
+      site %in% c("AQUE", "CARP", "MOHK") ~ "Not MPA"
+    )
+  )
+
+# Verify mutated table
+view(subset_j)
+view(subset_k)
+```
