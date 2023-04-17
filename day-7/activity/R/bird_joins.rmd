@@ -1,0 +1,84 @@
+---
+title: Task 1 Join of birds
+output: html_document
+---
+
+``` {r, setup, include=FALSE}
+library(tidyverse)
+library(here)
+library(lubridate)
+library(stringr)
+```
+
+``` {r, include=TRUE}
+# *** TASK 1: Join on Birds *** #
+?read_csv()
+bird_observations <- read_csv(here::here("activity", "data", "52_pp52_birds_1.csv"), show_col_types = FALSE)
+sites <- read_csv(here::here("activity", "data", "52_pp52_sites_1.csv"), show_col_types = FALSE)
+surveys <- read_csv(here::here("activity", "data", "52_pp52_surveys_1.csv"), show_col_types = FALSE)
+taxalist <- read_csv(here::here("activity", "data", "52_pp52_taxalist_1.csv"), show_col_types = FALSE)
+# view(bird_observations)
+# view(sites)
+# view(surveys)
+# view(taxalist)
+
+# Create subset of bird_observations from species BHCO or RWBL, and from sites LI-W or NU-C
+subset_bird_observations <- bird_observations |>
+  dplyr::filter(species_id == "BHCO" | species_id == "RWBL", site_id == "LI-W" | site_id == "NU-C" )
+
+# Left join subset with the site and taxalist information
+
+# Join site information for all rows in the subset data that contain a corresponding site_id in the sites data
+birds_left <- left_join(subset_bird_observations, sites)
+# Join taxalist information for all rows in the subset data that contain a matching species_id in the taxalist data
+birds_left <- left_join(birds_left, taxalist)
+
+# Review new data set
+# view(birds_left)
+
+# Full Join subset_birds_observations & sites
+
+# Join all x and y entries even if there is no matching variable in the other table
+# Joining based on site_id in each data set
+birds_full <- full_join(subset_bird_observations, sites)
+
+# Review data set
+# view(birds_full)
+
+# Inner Join subset_birds_observations & sites
+# inner_join will
+birds_inner <- inner_join(subset_bird_observations, taxalist, by = "species_id")
+birds_left_2 <- left_join(subset_bird_observations, taxalist, by = "species_id")
+
+# Compare how inner versus left joins are different (Are they?)
+# view(birds_inner)
+# view(birds_left_2)
+```
+``` {r, include=TRUE}
+# TASK 2: Data Wrangling and Visualization
+
+# Rename notes column in bird data set as "bird_obs_notes"
+bird_observations <- bird_observations |>
+  rename(bird_obs_notes = notes)
+head(bird_observations)
+?dplyr::select()
+# Join bird, taxonomic, site, and survey data together
+subset_birds_all <- bird_observations |>
+  left_join(taxalist, by = "species_id") |>
+  left_join(sites, by = "site_id") |>
+  left_join(surveys, by = "survey_id") |>
+  select(survey_date, common_name, park_name, bird_count) |> # Limit column display to these 4 columns
+  mutate(survey_month = as.numeric(lubridate::month(survey_date))) |> # Take out month from date and treat it as factor (number)
+  relocate(survey_month, .after = survey_date) |> # Move survey_month column after the survey_date column
+  group_by(park_name, survey_month) |>
+  summarize(total_count = sum(bird_count)) |>
+  filter(park_name == "Lindo" | park_name == "Orme" | park_name == "Palomino" | park_name == "Sonrisa") # Only show entries relating to the following 4 parks: "Lindo", "Orme", "Palomino", and "Sonrisa"
+
+# Verify Data Wrangling
+head(subset_birds_all)
+# view(subset_birds_all)
+
+# PRactice Visualizing
+ggplot2::ggplot(subset_birds_all, aes(x = survey_month, y = total_count, color = park_name, fill = park_name)) +
+  geom_col() 
+```

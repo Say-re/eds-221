@@ -1,0 +1,40 @@
+---
+title: Task 3: String Practice
+output: html_document
+---
+
+``` {r, setup, include=FALSE}
+library(tidyverse)
+```
+
+``` {r, include=TRUE}
+alarm_report <- data.frame(
+  stringsAsFactors = FALSE,
+              date = c("2020-03-14", "2020-03-15", "2020-04-10", "2020-04-18"),
+          building = c("Engineering-North",
+                       "Bren Hall","Engineering-South","Engr-North"),
+     alarm_message = c("10:02am – HVAC system down, facilities management alerted",
+                       "8:24am – Elevator North out of service",
+                       "12:41am – Fire alarm, UCSB fire responded and cleared",
+                       "9:58pm – Campus point emergency siren, UCPD responded")
+)
+
+# Replace "Engr" with "Engineering" in the building column
+alarm_report <- alarm_report |>
+  mutate(building = stringr::str_replace(building, "Engr", "Engineering"))
+
+# Separate building column into two columns - Building and wing
+alarm_report <- alarm_report |>
+  separate(col = building, c("building", "wing")) # Default separates based on a non-alpha numeric character
+
+# Filter based on observations with the word "responded" in alarm_message col
+alarm_report <- alarm_report |>
+  filter(stringr::str_detect(alarm_message, "responded"))
+
+# Separate message time from the rest of the alarm_message
+alarm_report <- alarm_report |>
+  separate(col = alarm_message, c("time", "alarm_message"), sep = "–") |>
+  mutate(date = lubridate::as_date(date))
+
+head(alarm_report)
+```
