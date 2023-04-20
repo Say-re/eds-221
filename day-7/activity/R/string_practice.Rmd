@@ -1,5 +1,5 @@
 ---
-title: Task 3: String Practice
+title: Task 3 String Practice
 output: html_document
 ---
 

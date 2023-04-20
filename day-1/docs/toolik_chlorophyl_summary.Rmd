@@ -1,0 +1,40 @@
+---
+title: 'Toolik Chlorophyl Levels Data Summary'
+output: html_document
+---
+
+``` {r setup, include=FALSE}
+library(tidyverse)
+library(here)
+library(janitor)
+library(skimr)
+```
+
+## Read in data and begin to summarize it's contents
+
+``` {r include=TRUE}
+# Read in data
+toolik_chlorophyll <- read_csv(here::here('data', 'data-raw', 'toolik_chlorophyll.csv'), na = '.')
+
+# General Summary
+skimr::skim(toolik_chlorophyll)
+
+# Dimensions
+dim(toolik_chlorophyll)
+names(toolik_chlorophyll)
+
+# Initiate clean up of data names
+toolik_chlorophyll <- toolik_chlorophyll |> clean_names()
+
+# Log new Names
+names(toolik_chlorophyll)
+toolik_chlorophyll$active_chl_a_ug_l
+
+
+# Plot chlorophyll concentration versus measurement depth
+ggplot(data = toolik_chlorophyll, aes(x = active_chl_a_ug_l, y = depth)) +
+  geom_point(aes(color = depth), show.legend = FALSE ) +
+  scale_x_continuous(breaks = round(seq(from = 0, to = 9, by = 0.5),1)) +
+  xlab('Chlorophyll concentration (ug/l)') +
+  theme_minimal()
+```

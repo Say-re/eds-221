@@ -167,7 +167,8 @@ subset_k <- spiny_lob_abd_tidy |>
 # Group data by year and site, summarize the average carapace length for each group and SD
 lob_subset_yr_site <- spiny_lob_abd_tidy |>
   group_by(year, site) |>
-  summarize(mean_length_mm = mean(size_mm, na.rm = TRUE), mean_length_sd = sd(size_mm, na.rm = TRUE))
+  summarize(mean_length_mm = mean(size_mm, na.rm = TRUE), mean_length_sd = sd(size_mm, na.rm = TRUE)) |>
+  mutate(growth_rate)
 
 # Review subset of Data
 # Plot average size for each site
