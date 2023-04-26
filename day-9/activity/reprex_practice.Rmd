@@ -24,7 +24,7 @@ Data package title: Aquatic Vertebrate Population Study in Mack Creek, Andrews E
 
 There are no problems here. 
 ```{r}
-mack_creek_vertebrates <- read_csv(here("AS00601.csv"))
+mack_creek_vertebrates <- read_csv(here::here("activity", "AS00601.csv"))
 ```
 
 ### reprex 1
@@ -37,12 +37,23 @@ mack_creek_lengths <- mack_creek_vertebrates %>%
   clean_names() %>% 
   select(year:sampledate) %>% 
   filter(section == "CC") %>% 
-  mutate(across(where(is.character, tolower))) %>% 
+  mutate(across(where(is.character), tolower)) %>% 
   drop_na(species) %>% 
   group_by(species) %>% 
   summarize(mean_length_cm = mean(length1, na.rm = TRUE),
             sd_length_cm = sd(length1, na.rm = TRUE)) %>% 
   ungroup()
+view(mack_creek_lengths)
+```
+
+### reprex 1: Solution
+```{r}
+# There is only 1 issue present in the first example. The across function being called when trying to mutate the data frame is not being supplied 2 arguments.
+# Instead, the where() function is being supplied 2 arguments when it only needs one
+mack_reprex_example <- mack_creek_vertebrates |> # Reference read in file
+  dplyr::mutate(across(where(is.character), tolower)) # Ensure 'tolower' is the second argument for the across() function.
+
+View(mack_reprex_example)
 ```
 
 ### reprex 2
